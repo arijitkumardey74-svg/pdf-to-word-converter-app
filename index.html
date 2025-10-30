@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF to Word Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #333;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      display: inline-block;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type=file], button {
+      margin: 10px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>PDF to Word Converter</h1>
+  <form id="uploadForm">
+    <input type="file" id="pdfFile" accept=".pdf" required><br>
+    <button type="submit">Convert</button>
+  </form>
+  <p id="status"></p>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const file = document.getElementById('pdfFile').files[0];
+      if (!file) return alert('Please select a PDF file.');
+
+      status.textContent = 'Uploading and converting... ⏳';
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('http://127.0.0.1:8001/convert', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'converted.docx';
+        a.click();
+        status.textContent = '✅ Conversion complete! File downloaded.';
+      } else {
+        status.textContent = '❌ Conversion failed.';
+      }
+    });
+  </script>
+</body>
+</html>
